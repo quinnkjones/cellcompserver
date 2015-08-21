@@ -15,7 +15,10 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.http import HttpResponseRedirect
 
 urlpatterns = [
+    url(r'^$', lambda r: HttpResponseRedirect('app/')),
+    url(r'^app/',include('cellcompdirector.urls',namespace="cellcomp")),
     url(r'^admin/', include(admin.site.urls)),
 ]
