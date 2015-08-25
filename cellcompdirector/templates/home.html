@@ -3,7 +3,4 @@
 <p>Description text</p>
 
 <p>Enter your username in the field below and you can ge started</p>
-<form action ="{% url cellcomp:start}" method="post">
-  <input type="text" name="username"/>
-  <input type="submit" value="user"  />
-</form>
+<a href="{% url 'cellcomp:loginpage' %}">click here to login and get started</a>

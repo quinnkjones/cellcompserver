@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 class Cell(models.Model):
@@ -9,11 +10,11 @@ class Cell(models.Model):
         return self.fileloc
 
 
-class User(models.Model):
+class Rater(models.Model):
     userId = models.AutoField(primary_key = True)
     name = models.CharField(max_length=300)
-    uname = models.CharField(max_length = 100)
     trustRating = models.DecimalField(max_digits = 10,decimal_places=5)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name+' '+str(self.trustRating)
@@ -21,7 +22,7 @@ class User(models.Model):
 class Rating(models.Model):
     controlCell = models.ForeignKey(Cell, related_name='control')
     variableCell = models.ForeignKey(Cell, related_name='variable')
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(Rater)
     rating = models.SmallIntegerField()
 
     def __str__():
