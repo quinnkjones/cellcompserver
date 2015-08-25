@@ -1,7 +1,6 @@
 from django.shortcuts import render
-from django.http import HttpResponse
-from cellcompdirector.models import User
-from django.views.decorators.http import require_http_methods
+from django.template import RequestContext
+from django.shortcuts import render_to_response,redirect
 import datetime
 # Create your views here.
 
@@ -11,8 +10,18 @@ def home(request):
 
 @require_http_methods(["GET"])
 def playCellComp(request):
-    return HttpResponse("pass")
+    #t = get_template('play.html')
+    c = {}
+    #c.update(csrf(request))
+    c['leftcell'] = '~/left' #TODO replace with the code that picks the correct cell
+    c['rightcell'] = '~/right' #TODO see above
+    #TODO decide on a cell selection strategy
+    #TODO find an appropriate way to store the volatile info about what cells each indiviual user is looking at
+    print c
+    return render_to_response('play.html',c,context_instance=RequestContext(request))
 
 @require_http_methods(["POST"])
 def addNewRating(request):
-    return HttpResponse("pass")
+    print request.POST['rating']
+    #TODO add rating into system
+    return redirect('cellcomp:play')

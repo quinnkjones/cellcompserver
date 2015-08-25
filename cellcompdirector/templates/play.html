@@ -1,0 +1,30 @@
+<style>
+  body {
+    background-color: #000000;
+  }
+
+  p {
+    color: #00fc3f;
+  }
+
+  h1 {
+    color: #ffffff
+  }
+
+</style>
+
+
+<h1>andross test page</h1><br/>
+<br>
+
+<p>
+  {{leftcell}}   {{rightcell}}
+</p>
+
+<form action="{% url 'cellcomp:rate' %}" method="post"> {% csrf_token %}
+  <input type="submit" name="rating" value="1">
+  <input type="submit" name="rating" value="2">
+  <input type="submit" name="rating" value="3">
+  <input type="submit" name="rating" value="4">
+  <input type="submit" name="rating" value="5">
+</form>
