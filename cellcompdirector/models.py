@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+import random
 
 # Create your models here.
 class Cell(models.Model):
@@ -8,6 +9,9 @@ class Cell(models.Model):
 
     def __str__(self):
         return self.fileloc
+
+def checkForRedundant(ratingQset,cells):
+    return ratingQset.filter(controlCell = cells[0],variableCell = cell[1]).count() > 0
 
 
 class Rater(models.Model):
@@ -18,6 +22,27 @@ class Rater(models.Model):
 
     def __str__(self):
         return self.name+' '+str(self.trustRating)
+
+    def nextCellPair(self): #TODO revise cell picking algorithm
+        rated = self.ratings
+        cells = self.pickCells()
+        while checkForRedundant(rated,cells):
+            cells = self.pickCells()
+        return cells
+
+    def ratings(self):
+        return Rating.objects.filter(user = self)
+
+    def pickCells(self):
+        max = Cell.objects.latest('cellID').cellID
+        min = Cell.objects.first().cellID
+        id1 = random.randint(min,max)
+        id2 = random.randint(min,max)
+        leftcell = Cell.objects.get(cellID = id1)
+        rightcell = Cell.objects.get(cellID = id2)
+        return (leftcell,rightcell)
+
+
 
 class Rating(models.Model):
     controlCell = models.ForeignKey(Cell, related_name='control')

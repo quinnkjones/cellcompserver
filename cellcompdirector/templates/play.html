@@ -21,6 +21,8 @@
   {{leftcell}}   {{rightcell}}
 </p>
 
+
+
 <form action="{% url 'cellcomp:rate' %}" method="post"> {% csrf_token %}
   <input type="submit" name="rating" value="1">
   <input type="submit" name="rating" value="2">
