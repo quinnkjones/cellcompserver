@@ -71,6 +71,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'cellcompserver.wsgi.application'
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.file'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases

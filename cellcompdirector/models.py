@@ -11,7 +11,7 @@ class Cell(models.Model):
         return self.fileloc
 
 def checkForRedundant(ratingQset,cells):
-    return ratingQset.filter(controlCell = cells[0],variableCell = cell[1]).count() > 0
+    return ratingQset.filter(controlCell = cells[0],variableCell = cells[1]).count() > 0
 
 
 class Rater(models.Model):
@@ -24,7 +24,7 @@ class Rater(models.Model):
         return self.name+' '+str(self.trustRating)
 
     def nextCellPair(self): #TODO revise cell picking algorithm
-        rated = self.ratings
+        rated = self.ratings()
         cells = self.pickCells()
         while checkForRedundant(rated,cells):
             cells = self.pickCells()
@@ -50,5 +50,5 @@ class Rating(models.Model):
     user = models.ForeignKey(Rater)
     rating = models.SmallIntegerField()
 
-    def __str__():
+    def __str__(self):
         return str(self.controlCell)+' '+str(self.variableCell)+' '+str(self.user)+' '+str(self.rating)
