@@ -3,8 +3,13 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response,redirect
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
-import datetime
+from time import gmtime, strftime
 from cellcompdirector.models import *
+from django.conf import settings
+from struct import pack
+import numpy as np
+
+
 # Create your views here.
 
 @require_http_methods(["GET"])
@@ -41,3 +46,47 @@ def addNewRating(request):
     rating = Rating(controlCell = leftcell,variableCell = rightcell,user = rater, rating = ratingNum)
     rating.save()
     return redirect('cellcomp:play')
+
+def dumpFile(fname):
+    fullpath = settings.STATIC_ROOT+'dump/'+fname
+    #TODO perform user rating normalization combine into master rating grid output to file download
+
+    #create master model
+    numCells = Cell.objects.count()
+    model = np.zeros((numCells,numCells))
+
+    index = 0
+    indices = {}
+    for c in Cell.objects.all():
+        indices[c.cellID] = index
+        index += 1
+
+    #add to master model with normalized ratings
+    for u in Rater.objects.all():
+        mean = u.mean()
+        #TODO take trust measure into account here
+        for r in u.ratings().all():
+            normR = r.rating-mean
+            row = indices[r.controlCell.cellID]
+            col = indices[r.variableCell.cellID]
+
+            model[row,col] += normR
+
+    np.save(fullpath,model)
+
+
+
+    return 'dump/'+fname+'.npy'
+
+
+
+
+@require_http_methods(['GET'])
+@login_required(redirect_field_name='cellcomp:home')
+def datadump(request):
+    if not request.user.is_superuser:
+        return HttpResponseForbidden('Only Admin Site Members have access to this page')
+    else:
+        fname = strftime("%a-%d-%b-%Y-%H-%M-%S", gmtime())
+        subfolder = dumpFile(fname)
+        return redirect(settings.STATIC_URL + '/' + subfolder)

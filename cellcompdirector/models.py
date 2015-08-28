@@ -33,6 +33,16 @@ class Rater(models.Model):
     def ratings(self):
         return Rating.objects.filter(user = self)
 
+    def mean(self):
+        rated = self.ratings().all()
+        sum = 0
+        count = 0.0
+        for r in rated:
+            count += 1.0
+            sum += r.rating
+
+        return sum/count if count != 0 else 0
+
     def pickCells(self):
         max = Cell.objects.latest('cellID').cellID
         min = Cell.objects.first().cellID
