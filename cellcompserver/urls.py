@@ -21,6 +21,6 @@ urlpatterns = [
     url(r'^$', lambda r: HttpResponseRedirect('app/')),
     url(r'^app/',include('cellcompdirector.urls',namespace="cellcomp")),
     url(r'^admin/', include(admin.site.urls)),
-    
+
 
 ]

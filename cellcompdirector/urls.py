@@ -8,6 +8,8 @@ from . import views
 urlpatterns = [
     url(regex=r'^$', view=views.home, name='home'),
     url(r'^login/$', auth_views.login, name = 'loginpage'),
+    url(r'^logout/$',auth_views.logout,{'template_name':'registration/logout.html'},name = 'logout'),
+    url(r'^superhome/$', view = views.checkSuper, name = 'supercheck'),
     url(r'^cellcomp/$',view=views.playCellComp,name='play'),
     url(r'^newRating/$',view = views.addNewRating,name='rate'),
     url(r'^datadump/$',view=views.datadump,name = 'dump')

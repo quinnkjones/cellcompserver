@@ -4,6 +4,7 @@ from django.shortcuts import render_to_response,redirect
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from time import gmtime, strftime
+from django.http import *
 from cellcompdirector.models import *
 from django.conf import settings
 from struct import pack
@@ -33,7 +34,13 @@ def playCellComp(request):
     print c
     return render_to_response('play.html',c,context_instance=RequestContext(request))
 
-
+@require_http_methods(['GET'])
+@login_required(redirect_field_name = 'cellcomp:home')
+def checkSuper(request):
+    if not request.user.is_superuser:
+        return redirect('cellcomp:play')
+    else:
+        return render_to_response('adminfunctions.html')
 
 @require_http_methods(["POST"])
 @login_required(redirect_field_name='cellcomp:home')
