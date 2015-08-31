@@ -1,14 +1,20 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import Sum, Avg
 import random
 
 # Create your models here.
+
 class Cell(models.Model):
     cellID = models.AutoField(primary_key = True)
     fileloc = models.CharField(max_length=400)
 
     def __str__(self):
         return self.fileloc
+
+    def uniqueRatingforUser(self, rater):
+        return Rating.objects.filter(controlCell = self,user = rater).aggregate(sum = Sum('rating'))['sum']
+
 
 def checkForRedundant(ratingQset,cells):
     return ratingQset.filter(controlCell = cells[0],variableCell = cells[1]).count() > 0
@@ -34,20 +40,13 @@ class Rater(models.Model):
         return Rating.objects.filter(user = self)
 
     def mean(self):
-        rated = self.ratings().all()
-        sum = 0
-        count = 0.0
-        for r in rated:
-            count += 1.0
-            sum += r.rating
-
-        return sum/count if count != 0 else 0
+        return self.ratings.aggregate(avg = Avg('rating'))['avg']
 
     def pickCells(self):
-        max = Cell.objects.latest('cellID').cellID
-        min = Cell.objects.first().cellID
-        id1 = random.randint(min,max)
-        id2 = random.randint(min,max)
+        set = [d['cellID'] for d in Cell.objects.all().values('cellID')]
+        
+        id1 = random.choice(set)
+        id2 = random.choice(set)
         leftcell = Cell.objects.get(cellID = id1)
         rightcell = Cell.objects.get(cellID = id2)
         return (leftcell,rightcell)
