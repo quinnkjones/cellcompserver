@@ -54,6 +54,14 @@ def addNewRating(request):
     rating.save()
     return redirect('cellcomp:play')
 
+def genIndexDict():
+    index = 0
+    indices = {}
+    for c in Cell.objects.all():
+        indices[c.cellID] = index
+        index += 1
+    return indices
+
 def dumpFile(fname):
     fullpath = settings.STATIC_ROOT+'dump/'+fname
     #TODO perform user rating normalization combine into master rating grid output to file download
@@ -62,11 +70,7 @@ def dumpFile(fname):
     numCells = Cell.objects.count()
     model = np.zeros((numCells,numCells))
 
-    index = 0
-    indices = {}
-    for c in Cell.objects.all():
-        indices[c.cellID] = index
-        index += 1
+    indices = genIndexDict()
 
     #add to master model with normalized ratings
     for u in Rater.objects.all():
@@ -85,15 +89,46 @@ def dumpFile(fname):
 
     return 'dump/'+fname+'.npy'
 
+def dumpRaw(fname):
+    fullpath = settings.STATIC_ROOT+'dump/'+fname
+    #TODO perform user rating normalization combine into master rating grid output to file download
 
+    #create master model
+    numCells = Cell.objects.count()
+    numRaters = Rater.objects.count()
+    model = np.zeros((numRaters,numCells,numCells))
+
+    indices = genIndexDict()
+
+    depth = 0
+    for u in Rater.objects.all():
+        for r in u.ratings().all():
+            row = indices[r.controlCell.cellID]
+            col = indices[r.variableCell.cellID]
+
+            model[depth,row,col] = r.rating
+
+        depth += 1
+
+    np.save(fullpath,model)
+
+
+
+    return 'dump/'+fname+'.npy'
 
 
 @require_http_methods(['GET'])
 @login_required(redirect_field_name='cellcomp:home')
-def datadump(request):
+def datadump(request, method):
     if not request.user.is_superuser:
         return HttpResponseForbidden('Only Admin Site Members have access to this page')
     else:
         fname = strftime("%a-%d-%b-%Y-%H-%M-%S", gmtime())
-        subfolder = dumpFile(fname)
+
+        if method == 'accumulatedMean':
+            subfolder = dumpFile(fname)
+        elif method == 'raw':
+            subfolder = dumpRaw(fname)
+        else:
+            return HttpResponseNotAllowed('must have an acceptable method in url')
         return redirect(settings.STATIC_URL + '/' + subfolder)
