@@ -17,6 +17,34 @@ import numpy as np
 def home(request):
     return render(request,'home.html')
 
+@require_http_methods(['GET','POST'])
+@login_required(redirect_field_name='cellcomp:home')
+def sessionStart(request):
+    if request.method == 'GET':
+        return render_to_response('sessionStart.html',{'failed':False},context_instance=RequestContext(request))
+    else:
+        tstring = request.POST['time']
+        print tstring
+        try:
+            t = time.strptime(tstring,'%Mm')
+        except ValueError:
+            try:
+                t = time.strptime(tstring,'%Ih,%Mm')
+            except ValueError:
+                return render_to_response('sessionStart.html',{'failed':True},context_instance=RequestContext(request))
+        hour = t.tm_hour
+        minutes = t.tm_min + hour*60
+        secs = minutes*60
+        print secs
+        request.session['sessioncountdown'] = secs
+        return redirect('cellcomp:play')
+
+def get_or_none(model, *args, **kwargs):
+    try:
+        return model.objects.get(*args, **kwargs)
+    except model.DoesNotExist:
+        return None
+
 @require_http_methods(["GET"])
 @login_required(redirect_field_name='cellcomp:home')
 def playCellComp(request):
@@ -24,23 +52,22 @@ def playCellComp(request):
     c = {}
     #c.update(csrf(request))
     rater = Rater.objects.get(user=request.user)
-    leftcell,rightcell = rater.nextCellPair()
+
+    try:
+        leftcell,rightcell = rater.nextCellPair(cCell = get_or_none(Cell,cellID = request.session.get('controlCell',0)))
+    except PermuteTimeoutError, e:
+        print e.value
+        return redirect('cellcomp:home')
+
     c['leftcell'] = leftcell
+    if request.session.get('controlCell') is None:
+        request.session['controlCell'] = leftcell.cellID
     c['rightcell'] = rightcell
 
-    #TODO find an appropriate way to store the volatile info about what cells each indiviual user is looking at
-        #have hirsh's code send it as well?
     request.session['cellpair'] = (leftcell.cellID,rightcell.cellID)
+
     print c
     return render_to_response('play.html',c,context_instance=RequestContext(request))
-
-@require_http_methods(['GET'])
-@login_required(redirect_field_name = 'cellcomp:home')
-def checkSuper(request):
-    if not request.user.is_superuser:
-        return redirect('cellcomp:play')
-    else:
-        return render_to_response('adminfunctions.html')
 
 @require_http_methods(["POST"])
 @login_required(redirect_field_name='cellcomp:home')
@@ -50,9 +77,22 @@ def addNewRating(request):
     leftcell = Cell.objects.get(cellID = leftcid)
     rightcell = Cell.objects.get(cellID = rightcid)
     rater = Rater.objects.get(user = request.user)
-    rating = Rating(controlCell = leftcell,variableCell = rightcell,user = rater, rating = ratingNum)
-    rating.save()
-    return redirect('cellcomp:play')
+
+    rating,created = Rating.objects.get_or_create(controlCell = leftcell,variableCell = rightcell,user = rater,defaults = { 'rating' : ratingNum})
+    if created:
+        return redirect('cellcomp:play')
+    else:
+        return redirect('cellcomp:home')
+
+@require_http_methods(['GET'])
+@login_required(redirect_field_name = 'cellcomp:home')
+def checkSuper(request):
+    if not request.user.is_superuser:
+        return redirect('cellcomp:newsession')
+    else:
+        return render_to_response('adminfunctions.html')
+
+
 
 def genIndexDict():
     index = 0
@@ -64,7 +104,7 @@ def genIndexDict():
 
 def dumpFile(fname):
     fullpath = settings.STATIC_ROOT+'dump/'+fname
-    #TODO perform user rating normalization combine into master rating grid output to file download
+
 
     #create master model
     numCells = Cell.objects.count()

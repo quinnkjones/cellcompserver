@@ -23,7 +23,7 @@
 
 
 
-<form action="{% url 'cellcomp:rate' %}" method="post"> {% csrf_token %}
+<form action="{% url 'cellcomp:rate' %}" method="post" > {% csrf_token %}
   <input type="submit" name="rating" value="1">
   <input type="submit" name="rating" value="2">
   <input type="submit" name="rating" value="3">

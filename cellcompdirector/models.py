@@ -1,9 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Sum, Avg
+import time
 import random
 
 # Create your models here.
+
+class PermuteTimeoutError(Exception):
+    def __init__(self,value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
 
 class Cell(models.Model):
     cellID = models.AutoField(primary_key = True)
@@ -29,11 +37,21 @@ class Rater(models.Model):
     def __str__(self):
         return self.name+' '+str(self.trustRating)
 
-    def nextCellPair(self): #TODO revise cell picking algorithm
+    def nextCellPair(self,cCell = None): #TODO revise cell picking algorithm
         rated = self.ratings()
-        cells = self.pickCells()
+
+        if cCell is None:
+            cCell = self.pickCell() #TODO revise this to be smarter
+
+        rcell = self.pickCell()
+        cells = (cCell, rcell)
+        pretime = time.time()
         while checkForRedundant(rated,cells):
-            cells = self.pickCells()
+            rcell = self.pickCells()
+            cells = (cCell,rcell)
+            diff = time.time() - pretime
+            if diff > 30:
+                raise PermuteTimeoutError(rated.all())
         return cells
 
     def ratings(self):
@@ -42,14 +60,13 @@ class Rater(models.Model):
     def mean(self):
         return self.ratings.aggregate(avg = Avg('rating'))['avg']
 
-    def pickCells(self):
+    def pickCell(self):
         set = [d['cellID'] for d in Cell.objects.all().values('cellID')]
-        
-        id1 = random.choice(set)
+
         id2 = random.choice(set)
-        leftcell = Cell.objects.get(cellID = id1)
-        rightcell = Cell.objects.get(cellID = id2)
-        return (leftcell,rightcell)
+
+        cell = Cell.objects.get(cellID = id2)
+        return cell
 
 
 
