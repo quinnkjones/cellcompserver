@@ -5,24 +5,101 @@
 
   p {
     color: #00fc3f;
+    font-size: 25;
   }
 
   h1 {
-    color: #ffffff
+    color: #ffffff;
+  }
+
+  span {
+    color: #ffffff;
+  }
+
+  div {
+    color: #90b32c;
   }
 
 </style>
 
 
-<h1>andross test page</h1><br/>
-<br>
+<h1>andross test page</h1>
+<div><span id="time"></span></div>
+<br/>
+<br/>
 
 <p>
   {{leftcell}}   {{rightcell}}
 </p>
 
+<script>
+function CountDownTimer(duration, granularity) {
+  this.duration = duration;
+  this.granularity = granularity || 1000;
+  this.tickFtns = [];
+  this.running = false;
+}
 
+CountDownTimer.prototype.start = function() {
+  if (this.running) {
+    return;
+  }
+  this.running = true;
+  var start = Date.now(),
+      that = this,
+      diff, obj;
 
+  (function timer() {
+    diff = that.duration - (((Date.now() - start) / 1000) | 0);
+
+    if (diff > 0) {
+      setTimeout(timer, that.granularity);
+    } else {
+      diff = 0;
+      that.running = false;
+    }
+
+    obj = CountDownTimer.parse(diff);
+    that.tickFtns.forEach(function(ftn) {
+      ftn.call(this, obj.hours, obj.minutes, obj.seconds);
+    }, that);
+  }());
+};
+
+CountDownTimer.prototype.onTick = function(ftn) {
+  if (typeof ftn === 'function') {
+    this.tickFtns.push(ftn);
+  }
+  return this;
+};
+
+CountDownTimer.prototype.expired = function() {
+  return !this.running;
+};
+
+CountDownTimer.parse = function(seconds) {
+
+  return {
+    'hours' : parseInt(seconds/3600) % 24,
+    'minutes': parseInt(seconds / 60)%60 | 0,
+    'seconds': (seconds % 60) | 0
+  };
+};
+
+function changeElement(hour,min,sec){
+  disp = document.querySelector('#time');
+  hour = hour < 10 ? "0"+hour: hour;
+  min = min < 10 ? "0"+min : min;
+  sec = sec < 10 ? "0"+sec : sec;
+  disp.textContent = hour+":"+min+":"+sec;
+};
+
+window.onload = function(){
+  var c = new CountDownTimer({{timeleft}},1000);
+  c.onTick(changeElement)
+  c.start()
+};
+</script>
 <form action="{% url 'cellcomp:rate' %}" method="post" > {% csrf_token %}
   <input type="submit" name="rating" value="1">
   <input type="submit" name="rating" value="2">

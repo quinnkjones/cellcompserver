@@ -41,7 +41,7 @@ class Rater(models.Model):
         rated = self.ratings()
 
         if cCell is None:
-            cCell = self.pickCell() #TODO revise this to be smarter
+            cCell = self.pickCell() 
 
         rcell = self.pickCell()
         cells = (cCell, rcell)

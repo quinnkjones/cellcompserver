@@ -29,14 +29,19 @@ def sessionStart(request):
             t = time.strptime(tstring,'%Mm')
         except ValueError:
             try:
-                t = time.strptime(tstring,'%Ih,%Mm')
+                t = time.strptime(tstring,'%Ih%Mm')
             except ValueError:
-                return render_to_response('sessionStart.html',{'failed':True},context_instance=RequestContext(request))
+                try:
+                    t = time.strptime(tstring,'%Ih')
+                except ValueError:
+                    return render_to_response('sessionStart.html',{'failed':True},context_instance=RequestContext(request))
         hour = t.tm_hour
         minutes = t.tm_min + hour*60
         secs = minutes*60
         print secs
         request.session['sessioncountdown'] = secs
+        request.session['pretime'] = time.time()
+        request.session['controlCell'] = 0
         return redirect('cellcomp:play')
 
 def get_or_none(model, *args, **kwargs):
@@ -45,14 +50,24 @@ def get_or_none(model, *args, **kwargs):
     except model.DoesNotExist:
         return None
 
+def sessionExpired(request):
+    print request.session['sessioncountdown']
+    print time.time() - request.session['pretime']
+    print settings.SESSION_CUSTOM_TIMEOUT
+    return request.session['sessioncountdown'] <= 0 or time.time()-request.session['pretime'] >= settings.SESSION_CUSTOM_TIMEOUT
+
 @require_http_methods(["GET"])
 @login_required(redirect_field_name='cellcomp:home')
 def playCellComp(request):
+    if sessionExpired(request):
+        return redirect('cellcomp:newsession')
     #t = get_template('play.html')
     c = {}
     #c.update(csrf(request))
     rater = Rater.objects.get(user=request.user)
 
+
+    print request.session['controlCell']
     try:
         leftcell,rightcell = rater.nextCellPair(cCell = get_or_none(Cell,cellID = request.session.get('controlCell',0)))
     except PermuteTimeoutError, e:
@@ -60,18 +75,22 @@ def playCellComp(request):
         return redirect('cellcomp:home')
 
     c['leftcell'] = leftcell
-    if request.session.get('controlCell') is None:
+    if request.session.get('controlCell') == 0:
         request.session['controlCell'] = leftcell.cellID
     c['rightcell'] = rightcell
-
+    c['timeleft'] = request.session['sessioncountdown']
     request.session['cellpair'] = (leftcell.cellID,rightcell.cellID)
-
+    request.session['pretime'] = time.time()
     print c
     return render_to_response('play.html',c,context_instance=RequestContext(request))
 
 @require_http_methods(["POST"])
 @login_required(redirect_field_name='cellcomp:home')
 def addNewRating(request):
+    postTime = time.time()
+    diff = postTime - request.session['pretime']
+    print diff
+    request.session['sessioncountdown'] = request.session['sessioncountdown']-diff
     ratingNum =  request.POST['rating']
     leftcid,rightcid =  request.session['cellpair']
     leftcell = Cell.objects.get(cellID = leftcid)
@@ -131,7 +150,7 @@ def dumpFile(fname):
 
 def dumpRaw(fname):
     fullpath = settings.STATIC_ROOT+'dump/'+fname
-    #TODO perform user rating normalization combine into master rating grid output to file download
+
 
     #create master model
     numCells = Cell.objects.count()
