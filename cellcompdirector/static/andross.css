@@ -1,0 +1,29 @@
+body {
+  font-family: Monospace;
+  background-color: #7D7D7D;
+  color: #fff;
+  margin: 0px;
+  overflow: hidden;
+}
+#info {
+  color: #fff;
+  position: absolute;
+  top: 10px;
+  width: 100%;
+  text-align: center;
+  z-index: 100;
+  display:block;
+}
+
+#footer {
+  position:absolute;
+  width:250px;
+  height:80px;
+  /*background: black;*/
+  bottom:0px;
+  right:25%;
+  left:50%;
+  text-align:center;
+  margin-left:-125px;
+}
+

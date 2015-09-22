@@ -1,111 +1,119 @@
-<style>
-  body {
-    background-color: #000000;
-  }
-
-  p {
-    color: #00fc3f;
-    font-size: 25;
-  }
-
-  h1 {
-    color: #ffffff;
-  }
-
-  span {
-    color: #ffffff;
-  }
-
-  div {
-    color: #90b32c;
-  }
-
-</style>
 
 
-<h1>andross test page</h1>
-<div><span id="time"></span></div>
-<br/>
-<br/>
+{% load staticfiles %}
+	<head>
+		<title>Andross Cell Matcher</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	    <link rel="stylesheet" href="{% static "js/jquery-ui.css"%}" />
+	    <link rel="stylesheet" href="{% static "andross.css"%}" />
+	</head>
 
-<p>
-  {{leftcell}}   {{rightcell}}
-</p>
+	<body>
+    <!--div><span id="time"></span></div>
+    <br/>
+    <br/-->
 
-<script>
-function CountDownTimer(duration, granularity) {
-  this.duration = duration;
-  this.granularity = granularity || 1000;
-  this.tickFtns = [];
-  this.running = false;
-}
 
-CountDownTimer.prototype.start = function() {
-  if (this.running) {
-    return;
-  }
-  this.running = true;
-  var start = Date.now(),
-      that = this,
-      diff, obj;
-
-  (function timer() {
-    diff = that.duration - (((Date.now() - start) / 1000) | 0);
-
-    if (diff > 0) {
-      setTimeout(timer, that.granularity);
-    } else {
-      diff = 0;
-      that.running = false;
+		<script src="{% static "js/three.min.js" %}"></script>
+		<script src="{% static "js/stats.min.js" %}"></script>
+		<script type='text/javascript' src='{% static "js/dat.gui.min.js"%}'></script>
+	  <script src="{% static "js/jquery-2.1.4.min.js"%}"></script>
+		<script src="{% static "js/jquery-ui.min.js"%}"></script>
+		<script src="{% static "js/OBJLoader.js"%}"></script>
+		<script src="{% static "js/Detector.js"%}"></script>
+		<script src="{% static "js/controls/TrackballControls.js"%}"></script>
+		<!-- // <script src="js/materials/ShaderMaterial.js"></script> -->
+		<script src="{% static "js/BoundingBoxHelper.js"%}"></script>
+		<script src="{% static "js/CameraHelper.js"%}"></script>
+		<script src="{% static "js/Geometry.js"%}"></script>
+		<script src="{% static "andross.js"%}"></script>
+    <script>
+    /*function CountDownTimer(duration, granularity) {
+      this.duration = duration;
+      this.granularity = granularity || 1000;
+      this.tickFtns = [];
+      this.running = false;
     }
 
-    obj = CountDownTimer.parse(diff);
-    that.tickFtns.forEach(function(ftn) {
-      ftn.call(this, obj.hours, obj.minutes, obj.seconds);
-    }, that);
-  }());
-};
+    CountDownTimer.prototype.start = function() {
+      if (this.running) {
+        return;
+      }
+      this.running = true;
+      var start = Date.now(),
+          that = this,
+          diff, obj;
 
-CountDownTimer.prototype.onTick = function(ftn) {
-  if (typeof ftn === 'function') {
-    this.tickFtns.push(ftn);
-  }
-  return this;
-};
+      (function timer() {
+        diff = that.duration - (((Date.now() - start) / 1000) | 0);
 
-CountDownTimer.prototype.expired = function() {
-  return !this.running;
-};
+        if (diff > 0) {
+          setTimeout(timer, that.granularity);
+        } else {
+          diff = 0;
+          that.running = false;
+        }
 
-CountDownTimer.parse = function(seconds) {
+        obj = CountDownTimer.parse(diff);
+        that.tickFtns.forEach(function(ftn) {
+          ftn.call(this, obj.hours, obj.minutes, obj.seconds);
+        }, that);
+      }());
+    };
 
-  return {
-    'hours' : parseInt(seconds/3600) % 24,
-    'minutes': parseInt(seconds / 60)%60 | 0,
-    'seconds': (seconds % 60) | 0
-  };
-};
+    CountDownTimer.prototype.onTick = function(ftn) {
+      if (typeof ftn === 'function') {
+        this.tickFtns.push(ftn);
+      }
+      return this;
+    };
 
-function changeElement(hour,min,sec){
-  disp = document.querySelector('#time');
-  hour = hour < 10 ? "0"+hour: hour;
-  min = min < 10 ? "0"+min : min;
-  sec = sec < 10 ? "0"+sec : sec;
-  disp.textContent = hour+":"+min+":"+sec;
-};
+    CountDownTimer.prototype.expired = function() {
+      return !this.running;
+    };
 
-window.onload = function(){
-  var c = new CountDownTimer({{timeleft}},1000);
-  c.onTick(changeElement)
-  c.start()
-};
-</script>
-<form action="{% url 'cellcomp:rate' %}" method="post" > {% csrf_token %}
-  <input type="submit" name="rating" value="1">
-  <input type="submit" name="rating" value="2">
-  <input type="submit" name="rating" value="3">
-  <input type="submit" name="rating" value="4">
-  <input type="submit" name="rating" value="5">
-</form>
+    CountDownTimer.parse = function(seconds) {
 
-<a href="{%url 'cellcomp:logout'%}">logout</a>
+      return {
+        'hours' : parseInt(seconds/3600) % 24,
+        'minutes': parseInt(seconds / 60)%60 | 0,
+        'seconds': (seconds % 60) | 0
+      };
+    };
+
+    function changeElement(hour,min,sec){
+      disp = document.querySelector('#time');
+      hour = hour < 10 ? "0"+hour: hour;
+      min = min < 10 ? "0"+min : min;
+      sec = sec < 10 ? "0"+sec : sec;
+      disp.textContent = hour+":"+min+":"+sec;
+    };*/
+
+
+
+			window.onload = function () {
+				var leftobj = "{{leftcell}}",
+					rightobj = "{{rightcell}}";
+			    init(leftobj, rightobj);
+          /*var c = new CountDownTimer({{timeleft}},1000);
+          c.onTick(changeElement)
+          c.start();*/
+			    animate();
+			};
+
+    </script>
+		<div id="footer">
+			<form action="{% url 'cellcomp:rate' %}" method="post" > {% csrf_token %}
+				<div id="radio">
+					<input type="radio" id="radio1" name="radio"><label for="radio1">1</label>
+			  	<input type="radio" id="radio2" name="radio"><label for="radio2">2</label>
+			    <input type="radio" id="radio3" name="radio"><label for="radio3">3</label>
+					<input type="radio" id="radio4" name="radio"><label for="radio4">4</label>
+					<input type="radio" id="radio5" name="radio"><label for="radio5">5</label>
+				</div id="radio">
+				<input type="submit" id="confirm" value="Confirm Selection">
+			</form>
+      <a href="{%url 'cellcomp:logout'%}">logout</a>
+		</div>
+	</body>

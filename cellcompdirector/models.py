@@ -28,20 +28,24 @@ def checkForRedundant(ratingQset,cells):
     return ratingQset.filter(controlCell = cells[0],variableCell = cells[1]).count() > 0
 
 
+
+
 class Rater(models.Model):
     userId = models.AutoField(primary_key = True)
     name = models.CharField(max_length=300)
-    trustRating = models.DecimalField(max_digits = 10,decimal_places=5)
+    trustRating = models.DecimalField(max_digits = 10,decimal_places=5,default=0.0)
+    ratingRateAvg = models.DecimalField(max_digits = 5,decimal_places=5,default=0.0)
+    ratingCount = models.IntegerField(default=0)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name+' '+str(self.trustRating)
+        return self.name+' '+str(self.ratingRateAvg)
 
     def nextCellPair(self,cCell = None): #TODO revise cell picking algorithm
         rated = self.ratings()
 
         if cCell is None:
-            cCell = self.pickCell() 
+            cCell = self.pickCell()
 
         rcell = self.pickCell()
         cells = (cCell, rcell)
@@ -78,3 +82,8 @@ class Rating(models.Model):
 
     def __str__(self):
         return str(self.controlCell)+' '+str(self.variableCell)+' '+str(self.user)+' '+str(self.rating)
+
+class SessionInfo(models.Model):
+    user = models.ForeignKey(Rater,related_name='sessions')
+    sessionRateAvg = models.DecimalField(max_digits = 5,decimal_places=5,default=0.0)
+    sessionCount = models.IntegerField(default = 0)

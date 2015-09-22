@@ -13,9 +13,46 @@ import numpy as np
 
 # Create your views here.
 
+def parsetime(tstring):
+    try:
+        t = time.strptime(tstring,'%Mm')
+    except ValueError:
+        try:
+            t = time.strptime(tstring,'%Ih%Mm')
+        except ValueError:
+            try:
+                t = time.strptime(tstring,'%Ih')
+            except ValueError:
+                return None
+    hour = t.tm_hour
+    minutes = t.tm_min + hour*60
+    secs = minutes*60
+    return secs
+
 @require_http_methods(["GET"])
 def home(request):
     return render(request,'home.html')
+
+@require_http_methods(['GET','POST'])
+@login_required(redirect_field_name='cellcomp:home')
+def sessionEnd(request):
+    if request.method == 'GET':
+        rater = Rater.objects.get(user = request.user)
+        sessobj = SessionInfo(rater,request.request.session['sessionAvg'],request.session['sessionCount'])
+        sessobj.save() #TODO finish saving session rates
+        sessions =  SessionInfo.objects.filter(user = rater)
+
+        return render_to_response('sessionEnd.html',{'failed':False},context_instance=RequestContext(request))
+    else:
+        tstring = request.POST['time']
+        secs = parsetime(tstring)
+        if secs is None:
+
+            return render_to_response('sessionStart.html',{'failed':True},context_instance=RequestContext(request))
+        request.session['sessioncountdown'] = secs
+        request.session['pretime'] = time.time()
+        request.session['controlCell'] = 0
+        return redirect('cellcomp:play')
 
 @require_http_methods(['GET','POST'])
 @login_required(redirect_field_name='cellcomp:home')
@@ -24,21 +61,9 @@ def sessionStart(request):
         return render_to_response('sessionStart.html',{'failed':False},context_instance=RequestContext(request))
     else:
         tstring = request.POST['time']
-        print tstring
-        try:
-            t = time.strptime(tstring,'%Mm')
-        except ValueError:
-            try:
-                t = time.strptime(tstring,'%Ih%Mm')
-            except ValueError:
-                try:
-                    t = time.strptime(tstring,'%Ih')
-                except ValueError:
-                    return render_to_response('sessionStart.html',{'failed':True},context_instance=RequestContext(request))
-        hour = t.tm_hour
-        minutes = t.tm_min + hour*60
-        secs = minutes*60
-        print secs
+        secs = parsetime(tstring)
+        if secs is None:
+            return render_to_response('sessionStart.html',{'failed':True},context_instance=RequestContext(request))
         request.session['sessioncountdown'] = secs
         request.session['pretime'] = time.time()
         request.session['controlCell'] = 0
@@ -51,16 +76,13 @@ def get_or_none(model, *args, **kwargs):
         return None
 
 def sessionExpired(request):
-    print request.session['sessioncountdown']
-    print time.time() - request.session['pretime']
-    print settings.SESSION_CUSTOM_TIMEOUT
     return request.session['sessioncountdown'] <= 0 or time.time()-request.session['pretime'] >= settings.SESSION_CUSTOM_TIMEOUT
 
 @require_http_methods(["GET"])
 @login_required(redirect_field_name='cellcomp:home')
 def playCellComp(request):
     if sessionExpired(request):
-        return redirect('cellcomp:newsession')
+        return redirect('cellcomp:sessionend')
     #t = get_template('play.html')
     c = {}
     #c.update(csrf(request))
@@ -84,19 +106,26 @@ def playCellComp(request):
     print c
     return render_to_response('play.html',c,context_instance=RequestContext(request))
 
+def cma(An,xn1,n):
+    return (xn1+float(n*An))/(n+1)
+
 @require_http_methods(["POST"])
 @login_required(redirect_field_name='cellcomp:home')
 def addNewRating(request):
     postTime = time.time()
     diff = postTime - request.session['pretime']
-    print diff
+
     request.session['sessioncountdown'] = request.session['sessioncountdown']-diff
     ratingNum =  request.POST['rating']
     leftcid,rightcid =  request.session['cellpair']
     leftcell = Cell.objects.get(cellID = leftcid)
     rightcell = Cell.objects.get(cellID = rightcid)
     rater = Rater.objects.get(user = request.user)
-
+    rater.ratingRateAvg = cma(rater.ratingRateAvg,diff,rater.ratingCount)
+    rater.ratingCount += 1
+    rater.save()
+    request.session['sessionAvg'] = cma(request.session['sessionAvg'],diff,request.session['sessionCount'])
+    request.session['sessionCount'] += 1
     rating,created = Rating.objects.get_or_create(controlCell = leftcell,variableCell = rightcell,user = rater,defaults = { 'rating' : ratingNum})
     if created:
         return redirect('cellcomp:play')
