@@ -1,0 +1,9 @@
+<h1> Welcome {{ user.get_full_name|default:user.username }}</h1>
+{%if failed %}
+  <p>Did not enter a comprehendable time format try using blaa</p>
+{% endif %}
+<p>Please estimate the length of your comparison session in format blaa</p>
+<form action="{%url 'cellcomp:newsession'%}" method="POST">{% csrf_token %}
+  Session Time:<input type="text" name="time"/>
+  <input type="submit" name="Go!"/>
+</form>

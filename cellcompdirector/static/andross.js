@@ -49,7 +49,7 @@ var camera, gui, container, scene, renderer,
 //     combopairs.shuffle();
 // }
 
-function init() {
+function init(leftobj, rightobj) {
     "use strict";
     container = document.createElement('div');
     document.body.appendChild(container);
@@ -190,17 +190,18 @@ function init() {
                 scene.add(firstCamera);
 
                     // zoom controller
-                zoomController.onFinishChange(function (value) {
-                    firstCamera.position.set(xPos, yPos, farPlane * 7 * (value / 5));
-                    // secondCamera
-                });
+                // zoomController.onFinishChange(function (value) {
+                //     firstCamera.position.set(xPos, yPos, farPlane * 7 * (value / 5));
+                //     // secondCamera
+                // });
 
                     // var firstCameraHelper = new THREE.CameraHelper ( firstCamera );
                     // testhelper = firstCameraHelper;
                     // scene.add(firstCameraHelper);
 
-            }).catch(function () {
+            }).catch(function (v) {
                 console.log("Error has happened in loadLeftObject. :|");
+                console.log(v);
             });
 
             loadRightObject(objFile2).then(function (planeArray) {
@@ -219,15 +220,16 @@ function init() {
 
                 secondCamera.position.set(xPos, yPos, farPlane * 7);
 
-                zoomController.onFinishChange(function (value) {
-                    secondCamera.position.set(xPos, yPos, farPlane * 7 * (value / 5));
-                });
+                // zoomController.onFinishChange(function (value) {
+                //     secondCamera.position.set(xPos, yPos, farPlane * 7 * (value / 5));
+                // });
                 // var secondCameraHelper = new THREE.CameraHelper ( secondCamera );
                 // testhelper1 = secondCameraHelper;
                 scene.add(secondCamera);
                 // scene.add(secondCameraHelper);
-            }).catch(function () {
+            }).catch(function (v) {
                 console.log("Error has happened in loadRightObject. :|");
+                console.log(v);
             });
             resolve("OK");
         });
@@ -240,7 +242,7 @@ function init() {
 
         $.ajax({
             type:    "GET",
-            url:     file1, //need to put the django url here 
+            url:     file1, //need to put the django url here
             success: function(objfiles) {
                 leftobj_url = objfiles[0];
                 rightobj_url = objfiles[1];
@@ -252,6 +254,7 @@ function init() {
 
         console.log("Comparing " + file1 + " VS " + file2);
         console.log("Pair " + (currentpair_ndx + 1) + " of " + combopairs.length);
+
 
         loadObjs(leftobj_url, rightobj_url);
     }
@@ -355,25 +358,29 @@ function init() {
 
     var selection = 0;
 
-    $(function () {
+    /*$(function () {
         //Read in whatever choice was selected and then reset selection to 0 and disable button
         $("input[type=submit], a, button")
             .button()
             .click(function (event) {
                 event.preventDefault();
+                var datastring = '&rating='+selection;
                 //Save the option
-                // jQuery.ajax({
-                //    type: "POST",
-                //    url: "test.py",
-                //    success: function (msg){
-                //        // alert("Data Saved: " + msg);
-                //    }
-                // });
-                answers.push([file1.substring(6), file2.substring(6), selection]);
+                 $.ajax({
+                   type: "POST",
+                   url: "newRating",
+                   data : datastring,
+                   success: function (msg){
+                       //alert("Data Saved: " + msg);
+
+                   }
+                 });
+                // answers.push([file1.substring(6), file2.substring(6), selection]);
+
                 selection = 0;
                 $("#confirm").button("disable");
-                //ok we'll need to test this 
-                getObjFiles();
+                //ok we'll need to test this
+                //getObjFiles();
                 // objFilePairTraversal();
             });
 
@@ -392,7 +399,7 @@ function init() {
         if (selection === 0) {
             $("#confirm").button("disable");
         }
-    });
+    });*/
 
     $(document).ready(function () {
         $(function () {
@@ -454,7 +461,8 @@ function init() {
         }
     });
 
-    objFilePairTraversal();
+    //objFilePairTraversal();
+    loadObjs(leftobj, rightobj);
 
     renderer = new THREE.WebGLRenderer({alpha: true});
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -477,9 +485,9 @@ function animate() {
     requestAnimationFrame(animate);
     if (test && test1) {
 
-        rotationController.onFinishChange(function (value) {
-            rotateSpeed = rotationSpeedScale * (value / 1000);
-        });
+        // rotationController.onFinishChange(function (value) {
+        //     rotateSpeed = rotationSpeedScale * (value / 1000);
+        // });
 
         test.rotation.y += rotateSpeed;
         test1.rotation.y -= rotateSpeed;
@@ -508,15 +516,15 @@ function animate() {
 //     });
 // }
 
-// This part + initializeFileArray and setupComboPairs 
+// This part + initializeFileArray and setupComboPairs
 // will be removed since file paths will be provided
-// from the django server 
+// from the django server
 //This too will be removed...
 // initializeFileArray().then(function (jsondata) {
 //     "use strict";
 //     fileArray = jsondata;
 //     // This will be removed
-//     setupComboPairs(jsondata); 
+//     setupComboPairs(jsondata);
 //     init();
 //     animate();
 // }).catch(function (v) {

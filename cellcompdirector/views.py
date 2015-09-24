@@ -9,7 +9,7 @@ from cellcompdirector.models import *
 from django.conf import settings
 from struct import pack
 import numpy as np
-
+from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 
@@ -67,6 +67,8 @@ def sessionStart(request):
         request.session['sessioncountdown'] = secs
         request.session['pretime'] = time.time()
         request.session['controlCell'] = 0
+        request.session['sessionAvg'] = 0
+        request.session['sessionCount'] = 0
         return redirect('cellcomp:play')
 
 def get_or_none(model, *args, **kwargs):
@@ -109,9 +111,11 @@ def playCellComp(request):
 def cma(An,xn1,n):
     return (xn1+float(n*An))/(n+1)
 
+@csrf_exempt
 @require_http_methods(["POST"])
 @login_required(redirect_field_name='cellcomp:home')
 def addNewRating(request):
+
     postTime = time.time()
     diff = postTime - request.session['pretime']
 
@@ -122,6 +126,7 @@ def addNewRating(request):
     rightcell = Cell.objects.get(cellID = rightcid)
     rater = Rater.objects.get(user = request.user)
     rater.ratingRateAvg = cma(rater.ratingRateAvg,diff,rater.ratingCount)
+    print rater.ratingRateAvg
     rater.ratingCount += 1
     rater.save()
     request.session['sessionAvg'] = cma(request.session['sessionAvg'],diff,request.session['sessionCount'])

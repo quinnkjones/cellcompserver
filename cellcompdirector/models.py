@@ -34,7 +34,7 @@ class Rater(models.Model):
     userId = models.AutoField(primary_key = True)
     name = models.CharField(max_length=300)
     trustRating = models.DecimalField(max_digits = 10,decimal_places=5,default=0.0)
-    ratingRateAvg = models.DecimalField(max_digits = 5,decimal_places=5,default=0.0)
+    ratingRateAvg = models.DecimalField(max_digits = 11,decimal_places=5,default=0.0)
     ratingCount = models.IntegerField(default=0)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
