@@ -1,5 +1,61 @@
-<a href = "{%url 'cellcomp:newsession'%}">test cellcomp</a> <br>
-<a href = "{%url 'admin:login' %}">admin page</a> <br>
-<a href = "{%url 'cellcomp:dump' 'accumulatedMean' %}">data dump</a> <br>
-<a href = "{%url 'cellcomp:dump' 'raw' %}">data dump raw</a> <br>
-<a href="{%url 'cellcomp:logout'%}">logout</a>
+{% load staticfiles %}
+	<head>
+		<title>Admin page</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="{% static "assets/css/main.css"%}"/>
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+	</head>
+	<body>
+		<div id="page-wrapper">
+
+			<!-- Header -->
+				<header id="header">
+					<h1 id="logo"><a href="index.html">WVU-SNRC</a></h1>
+					<nav id="nav">
+						<ul>
+							<li><a href="index.html">Contact</a></li>
+							<li><a href="index.html">About us</a></li>
+						</ul>
+					</nav>
+				</header>
+
+			<!-- Main -->
+				<div id="main" class="wrapper style1">
+						<!-- Buttons -->
+						<div class="container">
+							<header class="major">
+								<h2>Admin Panel</h2>
+								<h3>Welcome Admin </h3>
+							</header>
+							<section>
+								<ul class="actions">
+									<center><li><a href="{%url 'cellcomp:newsession'%}" class="button special">Tet Cell Compare</a></li></center>
+									<p> </p>
+									<center><li><a href="{%url 'admin:login' %}" class="button special">Admin Page</a></li></center>
+									<p> </p>
+									<center><li><a href="{%url 'cellcomp:dump' 'accumulatedMean' %}" class="button special">Data Dump</a></li></center>
+									<p> </p>
+									<center><li><a href="{%url 'cellcomp:dump' 'raw' %}" class="button special">Data Dump (raw)</a></li></center>
+									<p> </p>
+									<center><li><a href="{%url 'cellcomp:logout'%}" class="button special">Log out</a></li></center>
+									<p> </p>
+								</ul>
+							</section>
+						</div>
+
+		</div>
+
+		<!-- Scripts -->
+			<script src="{% static "assets/js/jquery.min.js"%}"></script>
+            <script src="{% static "assets/js/jquery.scrolly.min.js"%}"></script>
+            <script src="{% static "assets/js/jquery.dropotron.min.js"%}"></script>
+            <script src="{% static "assets/js/jquery.scrollex.min.js"%}"></script>
+            <script src="{% static "assets/js/skel.min.js"%}"></script>
+            <script src="{% static "assets/js/util.js"%}"></script>
+            <script src="{% static "assets/js/main.js"%}"></script>
+			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+
+	</body>

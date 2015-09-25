@@ -11,8 +11,6 @@ from struct import pack
 import numpy as np
 from django.views.decorators.csrf import csrf_exempt
 
-# Create your views here.
-
 def parsetime(tstring):
     try:
         t = time.strptime(tstring,'%Mm')
