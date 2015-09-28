@@ -109,7 +109,7 @@ def playCellComp(request):
 def cma(An,xn1,n):
     return (xn1+float(n*An))/(n+1)
 
-@csrf_exempt
+
 @require_http_methods(["POST"])
 @login_required(redirect_field_name='cellcomp:home')
 def addNewRating(request):
