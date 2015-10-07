@@ -46,7 +46,7 @@ def sessionEnd(request):
         secs = parsetime(tstring)
         if secs is None:
 
-            return render_to_response('sessionStart.html',{'failed':True},context_instance=RequestContext(request))
+            return render_to_response('sessionEnd.html',{'failed':True},context_instance=RequestContext(request))
         request.session['sessioncountdown'] = secs
         request.session['pretime'] = time.time()
         request.session['controlCell'] = 0
@@ -58,11 +58,17 @@ def sessionStart(request):
     if request.method == 'GET':
         return render_to_response('sessionStart.html',{'failed':False},context_instance=RequestContext(request))
     else:
-        tstring = request.POST['time']
-        secs = parsetime(tstring)
-        if secs is None:
+        #tstring = request.POST['time']
+        #secs = parsetime(tstring)
+        try:
+            controlNumber = int(request.POST['goal'])
+        except ValueError as e:
             return render_to_response('sessionStart.html',{'failed':True},context_instance=RequestContext(request))
-        request.session['sessioncountdown'] = secs
+
+        #if secs is None:
+        #    return render_to_response('sessionStart.html',{'failed':True},context_instance=RequestContext(request))
+        #request.session['sessioncountdown'] = secs
+        request.session['cellGoal'] = controlNumber
         request.session['pretime'] = time.time()
         request.session['controlCell'] = 0
         request.session['sessionAvg'] = 0
@@ -76,13 +82,13 @@ def get_or_none(model, *args, **kwargs):
         return None
 
 def sessionExpired(request):
-    return request.session['sessioncountdown'] <= 0 or time.time()-request.session['pretime'] >= settings.SESSION_CUSTOM_TIMEOUT
+    return request.session['cellGoal'] == 0#request.session['sessioncountdown'] <= 0 or time.time()-request.session['pretime'] >= settings.SESSION_CUSTOM_TIMEOUT
 
 @require_http_methods(["GET"])
 @login_required(redirect_field_name='cellcomp:home')
 def playCellComp(request):
     if sessionExpired(request):
-        return redirect('cellcomp:sessionend')
+        return redirect('cellcomp:home')
     #t = get_template('play.html')
     c = {}
     #c.update(csrf(request))
@@ -91,16 +97,17 @@ def playCellComp(request):
 
     print request.session['controlCell']
     try:
-        leftcell,rightcell = rater.nextCellPair(cCell = get_or_none(Cell,cellID = request.session.get('controlCell',0)))
+        (leftcell,rightcell),newControl = rater.nextCellPair(cCell = get_or_none(Cell,cellID = request.session.get('controlCell',0)))
     except PermuteTimeoutError, e:
         print e.value
         return redirect('cellcomp:home')
 
     c['leftcell'] = leftcell
-    if request.session.get('controlCell') == 0:
+    if newControl:
+        request.session['cellGoal'] -= 1
         request.session['controlCell'] = leftcell.cellID
     c['rightcell'] = rightcell
-    c['timeleft'] = request.session['sessioncountdown']
+    #c['timeleft'] = request.session['sessioncountdown']
     request.session['cellpair'] = (leftcell.cellID,rightcell.cellID)
     request.session['pretime'] = time.time()
     print c
@@ -117,7 +124,8 @@ def addNewRating(request):
     postTime = time.time()
     diff = postTime - request.session['pretime']
 
-    request.session['sessioncountdown'] = request.session['sessioncountdown']-diff
+    #request.session['sessioncountdown'] = request.session['sessioncountdown']-diff
+
     ratingNum =  request.POST['rating']
     leftcid,rightcid =  request.session['cellpair']
     leftcell = Cell.objects.get(cellID = leftcid)

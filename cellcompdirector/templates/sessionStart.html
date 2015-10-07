@@ -30,14 +30,17 @@
 								<h1> Welcome {{ user.get_full_name|default:user.username }}</h1>
 								<p>Please estimate the length of your comparison session in format ... </p>
 
+                {%if failed %}
+                  <p>Did not enter a comprehendable time format try using ... </p>
+                {% endif %}
 
 								<form action="{%url 'cellcomp:newsession'%}" method="POST">{% csrf_token %}
-								  Session Time:<input type="text" name="time"/>
+								  Session Time:<input type="text" name="goal"/>
 								  <p> </p>
 								  <input type="submit" class="button special" name="Go!"/>
 								</form>
-		
-								<p> </p>									
+
+								<p> </p>
 								</div>
 							</section>
 							<p> </p>

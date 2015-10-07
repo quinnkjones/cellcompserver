@@ -76,7 +76,10 @@ function init(leftobj, rightobj) {
         console.log(item, loaded, total);
     };
 
-    var material = new THREE.MeshLambertMaterial({color: 0x404040});
+    var material = new THREE.MeshLambertMaterial({
+                                                  color: 0x404040,
+                                                  side: THREE.DoubleSide
+                                                  });
 
     var loader = new THREE.OBJLoader(manager);
 

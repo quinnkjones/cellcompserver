@@ -23,6 +23,8 @@ class Cell(models.Model):
     def uniqueRatingforUser(self, rater):
         return Rating.objects.filter(controlCell = self,user = rater).aggregate(sum = Sum('rating'))['sum']
 
+    def exhausted(self):
+        return Rating.objects.filter(controlCell = self).count() == Cell.objects.count()
 
 def checkForRedundant(ratingQset,cells):
     return ratingQset.filter(controlCell = cells[0],variableCell = cells[1]).count() > 0
@@ -43,9 +45,11 @@ class Rater(models.Model):
 
     def nextCellPair(self,cCell = None): #TODO revise cell picking algorithm
         rated = self.ratings()
+        new = False
 
-        if cCell is None:
+        if cCell is None or cCell.exhausted():
             cCell = self.pickCell()
+            new = True
 
         rcell = self.pickCell()
         cells = (cCell, rcell)
@@ -56,7 +60,7 @@ class Rater(models.Model):
             diff = time.time() - pretime
             if diff > 30:
                 raise PermuteTimeoutError(rated.all())
-        return cells
+        return (cells,new)
 
     def ratings(self):
         return Rating.objects.filter(user = self)
