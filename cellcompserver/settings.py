@@ -24,11 +24,11 @@ with open('/etc/secret_key.txt') as f:
     SECRET_KEY = f.read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['quinnkjones.xyz']
 
-"""LOGGING = {
+LOGGING = {
     'version':1,
     'disable_existing_loggers':False,
     'handlers':{
@@ -45,7 +45,7 @@ ALLOWED_HOSTS = ['quinnkjones.xyz']
             'propagate':True,
         },
     },
-}"""
+}
 
 
 # Application definition
