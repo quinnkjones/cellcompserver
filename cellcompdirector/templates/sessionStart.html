@@ -35,9 +35,9 @@
                 {% endif %}
 
 								<form action="{%url 'cellcomp:newsession'%}" method="POST">{% csrf_token %}
-								  Session Time:<input type="text" name="goal"/>
+								  Number of rounds:<input type="text" name="goal" placeholder="25"/>
 								  <p> </p>
-								  <input type="submit" class="button special" name="Go!" placeholder="25"/>
+								  <input type="submit" class="button special" name="Go!" />
 								</form>
 
 								<p> </p>
