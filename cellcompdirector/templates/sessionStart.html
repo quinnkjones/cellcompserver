@@ -28,16 +28,16 @@
 						<header class="major">
 							<section>
 								<h1> Welcome {{ user.get_full_name|default:user.username }}</h1>
-								<p>Please estimate the length of your comparison session in format ... </p>
+								<p>Please input the number of control rounds you will perform</p>
 
                 {%if failed %}
-                  <p>Did not enter a comprehendable time format try using ... </p>
+                  <p>Did not enter a number </p>
                 {% endif %}
 
 								<form action="{%url 'cellcomp:newsession'%}" method="POST">{% csrf_token %}
 								  Session Time:<input type="text" name="goal"/>
 								  <p> </p>
-								  <input type="submit" class="button special" name="Go!"/>
+								  <input type="submit" class="button special" name="Go!" placeholder="25"/>
 								</form>
 
 								<p> </p>
