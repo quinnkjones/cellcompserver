@@ -1,29 +1,81 @@
-{% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
+{% load staticfiles %}
+    <head>
+        <title>WVU-SNRC Login</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+        <link rel="stylesheet" href="{% static "assets/css/main.css"%}"/>
+        <!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+        <!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+    </head>
+    <body>
+        <div id="page-wrapper">
 
-{% if next %}
-    {% if user.is_authenticated %}
-    <p>Your account doesn't have access to this page. To proceed,
-    please login with an account that has access.</p>
-    {% else %}
-    <p>Please login to see this page.</p>
-    {% endif %}
-{% endif %}
+            <!-- Header -->
+                <header id="header">
+                    <h1 id="logo"><a href="index.html">WVU-SNRC</a></h1>
+                    <nav id="nav">
+                        <ul>
+                            <li><a href="index.html">Contact</a></li>
+                            <li><a href="index.html">About us</a></li>
+                        </ul>
+                    </nav>
+                </header>
 
-<form method="post" action="{% url 'cellcomp:loginpage' %}">
-{% csrf_token %}
-<table>
-<tr>
-    <td>{{ form.username.label_tag }}</td>
-    <td>{{ form.username }}</td>
-</tr>
-<tr>
-    <td>{{ form.password.label_tag }}</td>
-    <td>{{ form.password }}</td>
-</tr>
-</table>
+            <!-- Main -->
+                <div id="main" class="wrapper style1">
+                    <div class="container">
+                        <header class="major">
+                            <section>
 
-<input type="submit" value="login" />
-<input type="hidden" name="next" value="{% url 'cellcomp:supercheck' %}" />
-</form>
+
+                                {% if form.errors %}
+                                <h3>Your username and password didn't match. Please try again.</h3>
+                                {% else %}
+                                <h3>Please login to see this page.</h3>
+                                {% endif %}
+
+                                <!-- {% if next %}
+                                    {% if user.is_authenticated %}
+                                    <h3>Your account doesn't have access to this page. To proceed,
+                                    please login with an account that has access.</h3>
+                                    {% else %}
+                                <h3>Please login to see this page.</h3>
+                                    {% endif %}
+                                {% endif %} -->
+
+                                <form method="post" action"{% url 'cellcomp:loginpage' %}">
+                                    {% csrf_token %}
+
+                                    <!-- Need to make this prettier! -->
+                                    {{form}}
+                                    
+                                    <!-- <div class="row uniform 50%">
+                                        <div class="6u 12u$(xsmall)">
+                                            <input type="text" name="name" id="name" value="" placeholder="Name" />
+                                        </div>
+                                        <div class="6u$ 12u$(xsmall)">
+                                            <input type="password" name="password" id="password" value="" placeholder="Password" />
+                                        </div>
+                                    </div> -->
+
+                                    <p> </p>
+                                    <center><input type="submit" class="button special" value="Login"/></a> </center>
+                                    <input type="hidden" name="next" value="{% url 'cellcomp:supercheck' %}" />
+                                </form>
+                            </section>
+                            <p> </p>
+                        </header>
+
+        <!-- Scripts -->
+            <script src="{% static "assets/js/jquery.min.js"%}"></script>
+            <script src="{% static "assets/js/jquery.scrolly.min.js"%}"></script>
+            <script src="{% static "assets/js/jquery.dropotron.min.js"%}"></script>
+            <script src="{% static "assets/js/jquery.scrollex.min.js"%}"></script>
+            <script src="{% static "assets/js/skel.min.js"%}"></script>
+            <script src="{% static "assets/js/util.js"%}"></script>
+            <script src="{% static "assets/js/main.js"%}"></script>
+            <!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+
+    </body>
+</html>

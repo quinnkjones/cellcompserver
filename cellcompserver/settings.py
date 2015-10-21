@@ -20,12 +20,32 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'kqa@peo^f!7%t05x_nq_q*8d@@p2w3jbxv+ed)s^)ou*ot9h#*'
+with open('/etc/secret_key.txt') as f:
+    SECRET_KEY = f.read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['quinnkjones.xyz']
+
+LOGGING = {
+    'version':1,
+    'disable_existing_loggers':False,
+    'handlers':{
+        'file':{
+            'level':'DEBUG',
+            'class':'logging.FileHandler',
+            'filename':'/var/log/django/djangobug.log',
+        },
+    },
+    'loggers':{
+        'django.request':{
+            'handlers':['file'],
+            'level':'DEBUG',
+            'propagate':True,
+        },
+    },
+}
 
 
 # Application definition
@@ -104,4 +124,4 @@ SESSION_CUSTOM_TIMEOUT = 1800
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = 'cellcompdirector/static/'
+STATIC_ROOT = os.path.join(BASE_DIR,'cellcompdirector/static/')

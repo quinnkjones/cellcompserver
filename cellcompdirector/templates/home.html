@@ -1,6 +1,46 @@
-<h1>Welcome to WVU-SNRC Collaborative Cell Comparison project</h1>
+{% load staticfiles %}
+	<head>
+		<title>WVU-SNRC Cell Compare</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="{% static "assets/css/main.css"%}"/>
+	</head>
+	<body class="landing">
+		<div id="page-wrapper">
 
-<p>Description text</p>
+			<!-- Header -->
+				<header id="header">
+					<h1 id="logo"><a href="index.html">WVU-SNRC</a></h1>
+					<nav id="nav">
+						<ul>
+							<li><a href="index.html">Contact</a></li>
+							<li><a href="index.html">About us</a></li>
+						</ul>
+					</nav>
+				</header>
 
-<p>Enter your username in the field below and you can ge started</p>
-<a href="{% url 'cellcomp:loginpage' %}">click here to login and get started</a>
+			<!-- Banner -->
+				<section id="banner">
+					<div class="content">
+						<header>
+							<h4> <center> Welcome to West Virginia University </center> </h4>
+							<h4> <center> Sensory Neuroscience Research Center </center> </h4>
+							<h3> Collaborative Cell Comparison Project</h3>
+							<p> <center>Let's get started! </center></p>
+							<p> </p>
+							<center><a href="{% url 'cellcomp:loginpage' %}" class="button special">Start</a></center>
+						</header>
+						<span class="image"><img src="{% static "images/pic01.jpg"%}" alt="" /></span>
+					</div>
+				</section>
+
+		<!-- Scripts -->
+			<script src="{% static "assets/js/jquery.min.js"%}"></script>
+			<script src="{% static "assets/js/jquery.scrolly.min.js"%}"></script>
+			<script src="{% static "assets/js/jquery.dropotron.min.js"%}"></script>
+			<script src="{% static "assets/js/jquery.scrollex.min.js"%}"></script>
+			<script src="{% static "assets/js/skel.min.js"%}"></script>
+			<script src="{% static "assets/js/util.js"%}"></script>
+			<script src="{% static "assets/js/main.js"%}"></script>
+
+	</body>

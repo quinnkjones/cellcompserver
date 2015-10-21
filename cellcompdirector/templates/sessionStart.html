@@ -1,9 +1,60 @@
-<h1> Welcome {{ user.get_full_name|default:user.username }}</h1>
-{%if failed %}
-  <p>Did not enter a comprehendable time format try using blaa</p>
-{% endif %}
-<p>Please estimate the length of your comparison session in format blaa</p>
-<form action="{%url 'cellcomp:newsession'%}" method="POST">{% csrf_token %}
-  Session Time:<input type="text" name="time"/>
-  <input type="submit" name="Go!"/>
-</form>
+{% load staticfiles %}
+    <head>
+        <title>WVU-SNRC Login</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+        <link rel="stylesheet" href="{% static "assets/css/main.css"%}"/>
+        <!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+        <!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+    </head>
+    <body>
+        <div id="page-wrapper">
+
+            <!-- Header -->
+				<header id="header">
+					<h1 id="logo"><a href="index.html">WVU-SNRC</a></h1>
+					<nav id="nav">
+						<ul>
+							<li><a href="index.html">Contact</a></li>
+							<li><a href="index.html">About us</a></li>
+						</ul>
+					</nav>
+				</header>
+
+			<!-- Main -->
+				<div id="main" class="wrapper style1">
+					<div class="container">
+						<header class="major">
+							<section>
+								<h1> Welcome {{ user.get_full_name|default:user.username }}</h1>
+								<p>Please input the number of control rounds you will perform</p>
+
+                {%if failed %}
+                  <p>Did not enter a number </p>
+                {% endif %}
+
+								<form action="{%url 'cellcomp:newsession'%}" method="POST">{% csrf_token %}
+								  Number of rounds:<input type="text" name="goal" value="25"/>
+								  <p> </p>
+								  <input type="submit" class="button special" name="Go!" />
+								</form>
+
+								<p> </p>
+								</div>
+							</section>
+							<p> </p>
+						</header>
+
+        <!-- Scripts -->
+            <script src="{% static "assets/js/jquery.min.js"%}"></script>
+            <script src="{% static "assets/js/jquery.scrolly.min.js"%}"></script>
+            <script src="{% static "assets/js/jquery.dropotron.min.js"%}"></script>
+            <script src="{% static "assets/js/jquery.scrollex.min.js"%}"></script>
+            <script src="{% static "assets/js/skel.min.js"%}"></script>
+            <script src="{% static "assets/js/util.js"%}"></script>
+            <script src="{% static "assets/js/main.js"%}"></script>
+            <!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+
+    </body>
+</html>
