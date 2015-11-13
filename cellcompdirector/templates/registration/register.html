@@ -12,39 +12,33 @@
         <div id="page-wrapper">
 
             <!-- Header -->
-				<header id="header">
-					<h1 id="logo"><a href={% url 'cellcomp:home' %}>WVU-SNRC</a></h1>
-					<nav id="nav">
-						<ul>
-							<li><a href="index.html">Contact</a></li>
-							<li><a href="index.html">About us</a></li>
-						</ul>
-					</nav>
-				</header>
+                <header id="header">
+                    <h1 id="logo"><a href="index.html">WVU-SNRC</a></h1>
+                    <nav id="nav">
+                        <ul>
+                            <li><a href="index.html">Contact</a></li>
+                            <li><a href="index.html">About us</a></li>
+                        </ul>
+                    </nav>
+                </header>
 
-			<!-- Main -->
-				<div id="main" class="wrapper style1">
-					<div class="container">
-						<header class="major">
-							<section>
-								<h1> Welcome {{ user.get_full_name|default:user.username }}</h1>
-								<p>Please input the number of control rounds you will perform</p>
+            <!-- Main -->
+                <div id="main" class="wrapper style1">
+                    <div class="container">
+                        <header class="major">
+                            <section>
 
-                {%if failed %}
-                  <p>Did not enter a number </p>
-                {% endif %}
+                                  <h1>Create an account</h1>
 
-								<form action="{%url 'cellcomp:newsession'%}" method="POST">{% csrf_token %}
-								  Number of rounds:<input type="text" name="goal" value="25"/>
-								  <p> </p>
-								  <input type="submit" class="button special" name="Go!" />
-								</form>
+                                  <form action="{% url 'cellcomp:register' %}" method="post">
+                                      {% csrf_token %}
+                                      {{ form.as_p }}
+                                      <input type="submit" value="Create the account">
+                                  </form>
 
-								<p> </p>
-								</div>
-							</section>
-							<p> </p>
-						</header>
+                            </section>
+                            <p> </p>
+                        </header>
 
         <!-- Scripts -->
             <script src="{% static "assets/js/jquery.min.js"%}"></script>

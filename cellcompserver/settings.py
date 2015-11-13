@@ -24,11 +24,17 @@ with open('/etc/secret_key.txt') as f:
     SECRET_KEY = f.read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['quinnkjones.xyz']
 
-LOGGING = {
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'quinnkjones@gmail.com'
+EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+"""LOGGING = {
     'version':1,
     'disable_existing_loggers':False,
     'handlers':{
@@ -45,7 +51,7 @@ LOGGING = {
             'propagate':True,
         },
     },
-}
+}"""
 
 
 # Application definition

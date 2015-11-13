@@ -13,7 +13,7 @@
 
             <!-- Header -->
                 <header id="header">
-                    <h1 id="logo"><a href="index.html">WVU-SNRC</a></h1>
+                    <h1 id="logo"><a href={% url 'cellcomp:home'%}>WVU-SNRC</a></h1>
                     <nav id="nav">
                         <ul>
                             <li><a href="index.html">Contact</a></li>
@@ -31,9 +31,12 @@
 
                                 {% if form.errors %}
                                 <h3>Your username and password didn't match. Please try again.</h3>
+                                <p>Forgot Password? Reset is <a href={% url 'cellcomp:resetrequest'%}>here</a></p>
                                 {% else %}
                                 <h3>Please login to see this page.</h3>
                                 {% endif %}
+
+                                <p>No account?  Register <a href="{% url 'cellcomp:register' %}">here</a></p>
 
                                 <!-- {% if next %}
                                     {% if user.is_authenticated %}
@@ -49,7 +52,7 @@
 
                                     <!-- Need to make this prettier! -->
                                     {{form}}
-                                    
+
                                     <!-- <div class="row uniform 50%">
                                         <div class="6u 12u$(xsmall)">
                                             <input type="text" name="name" id="name" value="" placeholder="Name" />

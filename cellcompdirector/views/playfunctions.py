@@ -11,6 +11,10 @@ from struct import pack
 import numpy as np
 from django.views.decorators.csrf import csrf_exempt
 
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.http import HttpResponseRedirect
+
 def parsetime(tstring):
     try:
         t = time.strptime(tstring,'%Mm')
@@ -26,10 +30,6 @@ def parsetime(tstring):
     minutes = t.tm_min + hour*60
     secs = minutes*60
     return secs
-
-@require_http_methods(["GET"])
-def home(request):
-    return render(request,'home.html')
 
 @require_http_methods(['GET','POST'])
 @login_required(redirect_field_name='cellcomp:home')
@@ -113,10 +113,6 @@ def playCellComp(request):
     print c
     return render_to_response('play.html',c,context_instance=RequestContext(request))
 
-def cma(An,xn1,n):
-    return (xn1+float(n*An))/(n+1)
-
-
 @require_http_methods(["POST"])
 @login_required(redirect_field_name='cellcomp:home')
 def addNewRating(request):
@@ -142,92 +138,3 @@ def addNewRating(request):
         return redirect('cellcomp:play')
     else:
         return redirect('cellcomp:home')
-
-@require_http_methods(['GET'])
-@login_required(redirect_field_name = 'cellcomp:home')
-def checkSuper(request):
-    if not request.user.is_superuser:
-        return redirect('cellcomp:newsession')
-    else:
-        return render_to_response('adminfunctions.html')
-
-
-
-def genIndexDict():
-    index = 0
-    indices = {}
-    for c in Cell.objects.all():
-        indices[c.cellID] = index
-        index += 1
-    return indices
-
-def dumpFile(fname):
-    fullpath = settings.STATIC_ROOT+'dump/'+fname
-
-
-    #create master model
-    numCells = Cell.objects.count()
-    model = np.zeros((numCells,numCells))
-
-    indices = genIndexDict()
-
-    #add to master model with normalized ratings
-    for u in Rater.objects.all():
-        mean = u.mean()
-        #TODO take trust measure into account here
-        for r in u.ratings().all():
-            normR = r.rating-mean
-            row = indices[r.controlCell.cellID]
-            col = indices[r.variableCell.cellID]
-
-            model[row,col] += normR
-
-    np.save(fullpath,model)
-
-
-
-    return 'dump/'+fname+'.npy'
-
-def dumpRaw(fname):
-    fullpath = settings.STATIC_ROOT+'dump/'+fname
-
-
-    #create master model
-    numCells = Cell.objects.count()
-    numRaters = Rater.objects.count()
-    model = np.zeros((numRaters,numCells,numCells))
-
-    indices = genIndexDict()
-
-    depth = 0
-    for u in Rater.objects.all():
-        for r in u.ratings().all():
-            row = indices[r.controlCell.cellID]
-            col = indices[r.variableCell.cellID]
-
-            model[depth,row,col] = r.rating
-
-        depth += 1
-
-    np.save(fullpath,model)
-
-
-
-    return 'dump/'+fname+'.npy'
-
-
-@require_http_methods(['GET'])
-@login_required(redirect_field_name='cellcomp:home')
-def datadump(request, method):
-    if not request.user.is_superuser:
-        return HttpResponseForbidden('Only Admin Site Members have access to this page')
-    else:
-        fname = strftime("%a-%d-%b-%Y-%H-%M-%S", gmtime())
-
-        if method == 'accumulatedMean':
-            subfolder = dumpFile(fname)
-        elif method == 'raw':
-            subfolder = dumpRaw(fname)
-        else:
-            return HttpResponseNotAllowed('must have an acceptable method in url')
-        return redirect(settings.STATIC_URL + '/' + subfolder)
